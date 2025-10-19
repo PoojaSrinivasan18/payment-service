@@ -1,4 +1,4 @@
-# payment-service
+# Payment Service
 The Payment Service is a dedicated microservice responsible for handling all payment-related operations within the E-commerce with Inventory (ECI) platform. It follows a database-per-service pattern, managing its own isolated Payment database, which stores payment transactions and idempotency keys to ensure consistency and reliability.
 
 # Key Responsibilities
