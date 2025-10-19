@@ -1,13 +1,15 @@
 package database
 
 import (
+	"os"
+	"time"
+
 	"github.com/PoojaSrinivasan18/payment-service/common"
 	"github.com/PoojaSrinivasan18/payment-service/model"
+
 	"github.com/apex/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"os"
-	"time"
 )
 
 var (

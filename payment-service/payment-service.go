@@ -1,12 +1,14 @@
 package payment_service
 
 import (
-	"github.com/PoojaSrinivasan18/payment-service/database"
-	"github.com/PoojaSrinivasan18/payment-service/model"
-	"github.com/apex/log"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/PoojaSrinivasan18/payment-service/database"
+	"github.com/PoojaSrinivasan18/payment-service/model"
+
+	"github.com/apex/log"
+	"github.com/gin-gonic/gin"
 )
 
 func GetPaymentById(c *gin.Context) {
