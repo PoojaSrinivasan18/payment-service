@@ -1,8 +1,9 @@
-package payment_service
+package main
 
 import (
 	"github.com/PoojaSrinivasan18/payment-service/common"
 	"github.com/PoojaSrinivasan18/payment-service/database"
+	"github.com/PoojaSrinivasan18/payment-service/model"
 	payment_service "github.com/PoojaSrinivasan18/payment-service/payment-service"
 
 	"github.com/apex/log"
@@ -10,20 +11,36 @@ import (
 )
 
 func main() {
-	err := common.ConfigSetup("configuration/dbconfig.yaml")
+	log.Info("Starting Payment Service")
+
+	err := common.ConfigSetup("config/dbconfig.yaml")
 	if err != nil {
-		log.Error("ConfigSetup failed")
+		log.Errorf("ConfigSetup failed: %v", err)
 		return
 	}
 
 	configuration := common.GetConfig()
-	err = database.SetupDB(configuration)
+	log.Info("Configuration loaded successfully")
 
+	err = database.SetupDB(configuration)
 	if err != nil {
-		log.Error("SetupDB failed")
+		log.Errorf("SetupDB failed: %v", err)
 		return
+	}
+
+	log.Info("DB Setup Success")
+
+	//	router := gin.Default()
+	// routes...
+	//router.Run(":3000")
+
+	log.Infof(" Running AutoMigrate...")
+	database.GetDB().Exec("SET search_path TO payment;")
+	err = database.GetDB().AutoMigrate(&model.PaymentModel{})
+	if err != nil {
+		log.Errorf("AutoMigrate failed: %v", err)
 	} else {
-		log.Info("DB Setup Success")
+		log.Infof(" Migration successful!")
 	}
 
 	router := gin.Default()
@@ -34,8 +51,8 @@ func main() {
 	//router.POST("/api/loadseeddata", inventory.SeedInventoryDetail)*/
 
 	//:: Note: For local testing use below
-	router.Run("localhost:3000")
+	//router.Run("localhost:3000")
 
 	//:: For Docker use below
-	//router.Run(":3000")
+	router.Run(":3000")
 }

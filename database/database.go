@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -23,19 +24,20 @@ type Repository struct {
 
 // SetupDB opens a database and saves the reference to `Database` struct.
 func SetupDB(configuration *common.Configuration) error {
+	log.Infof("entering setupDb")
 	var db *gorm.DB
 
 	driver := configuration.Database.Driver
-	dbname := configuration.Database.Dbname
-	username := configuration.Database.Username
+	//dbname := configuration.Database.Dbname
+	//username := configuration.Database.Username
 	password := configuration.Database.Password
 
-	port := configuration.Database.Port
+	//port := configuration.Database.Port
 
 	//host := os.Getenv("MY_POD_IP")
 	host := configuration.Database.Host
 	if host != "" {
-		log.Infof("Host IP is ", host)
+		log.Infof("Host IP is %v", host)
 	} else {
 		log.Error("Host is Empty in Env Variable")
 	}
@@ -43,10 +45,20 @@ func SetupDB(configuration *common.Configuration) error {
 	pw := os.Getenv("APP_DB_PASSWORD")
 	if pw != "" {
 		password = pw
+	} else {
+		return fmt.Errorf("Password not found")
 	}
 
 	// data source name
-	dsn := "host=" + host + " user=" + username + " password=" + password + " port=" + port + " dbname=" + dbname
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		host,
+		configuration.Database.Username,
+		password,
+		configuration.Database.Dbname,
+		configuration.Database.Port,
+	)
+
 	if driver == "postgres" { // Postgres DB
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
