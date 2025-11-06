@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/PoojaSrinivasan18/payment-service/common"
@@ -42,13 +41,6 @@ func SetupDB(configuration *common.Configuration) error {
 		log.Error("Host is Empty in Env Variable")
 	}
 
-	pw := os.Getenv("APP_DB_PASSWORD")
-	if pw != "" {
-		password = pw
-	} else {
-		return fmt.Errorf("Password not found")
-	}
-
 	// data source name
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
@@ -60,9 +52,18 @@ func SetupDB(configuration *common.Configuration) error {
 	)
 
 	if driver == "postgres" { // Postgres DB
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		for i := 0; i < 10; i++ {
+			db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+			if err == nil {
+				log.Infof("Successfully connected to DB on attempt %d", i+1)
+				break
+			}
+			log.Warnf("Failed to connect to DB (attempt %d/10): %v", i+1, err)
+			time.Sleep(5 * time.Second)
+		}
+
 		if err != nil {
-			log.Errorf("db err: ", err)
+			log.Fatalf("Could not connect to database after 10 attempts: %v", err)
 		}
 	}
 
